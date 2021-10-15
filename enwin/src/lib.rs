@@ -13,8 +13,8 @@ pub struct Game {
 }
 
 impl Window {
-    pub fn init_window(
-        name : &'static str,
+    pub fn new(
+        name : &str,
         width : u32,
         height : u32) -> Window {
         let mut event_loop = EventLoop::new();
@@ -59,6 +59,10 @@ impl Window {
 
         })
     }
+
+    pub async fn asyn_loop(event_loop: EventLoop<()>) {
+        Window::main_loop(event_loop);
+    }
 }
 
 impl Game {
@@ -68,5 +72,46 @@ impl Game {
             game: Logic::new(),
             windows: Vec::new()
         }
+    }
+
+    pub fn AddWindow(
+        &mut self,
+        name : &str,
+        width : u32,
+        height : u32
+    ) {
+        self.windows.push(Window::new(name, width, height));
+    }
+
+    pub fn Run(&mut self) {
+        let ref ev = self.windows[0];
+        ev.event_loop.run(move |event, _, control_flow| {
+
+            match event {
+                | Event::WindowEvent { event, .. } => {
+                    match event {
+                        | WindowEvent::CloseRequested => {
+                            *control_flow = ControlFlow::Exit
+                        },
+                        | WindowEvent::KeyboardInput { input, .. } => {
+                            match input {
+                                | KeyboardInput { virtual_keycode, state, .. } => {
+                                    match (virtual_keycode, state) {
+                                        | (Some(VirtualKeyCode::Escape), ElementState::Pressed) => {
+                                            dbg!();
+                                            *control_flow = ControlFlow::Exit
+                                        },
+                                        | _ => {},
+                                    }
+                                },
+                            }
+                        },
+                        | _ => {},
+                    }
+                },
+                _ => (),
+            }
+
+        })
     }
 }
