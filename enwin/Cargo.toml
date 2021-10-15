@@ -8,4 +8,4 @@ edition = "2018"
 [dependencies]
 encore = {path = "encore"}
 enrender = {path = "enrender"}
-
+winit = "0.25.0"

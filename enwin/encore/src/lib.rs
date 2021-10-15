@@ -1,11 +1,18 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
+use legion::*;
+
+
+pub struct Logic {
+    world : World
 }
 
-struct Game {
+impl Logic {
+    pub fn new() -> Logic {
+        Self {
+            world : World::default()
+        }
+    }
 
+    pub fn Step(&self, dt : f32) {
+
+    }
 }

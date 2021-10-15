@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 encore = {path = "../encore"}
+winit = "0.25.0"
