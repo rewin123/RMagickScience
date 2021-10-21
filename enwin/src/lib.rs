@@ -1,29 +1,49 @@
+extern crate glfw;
+use std::sync::mpsc::Receiver;
 use encore::*;
-use winit::event::{Event, VirtualKeyCode, ElementState, KeyboardInput, WindowEvent};
-use winit::event_loop::{EventLoop, ControlFlow};
 
-pub struct Game {
-    game : Logic
+use glfw::{Action, Context, Glfw, Key};
+
+pub struct Window {
+    win : glfw::Window,
+    events : Receiver<(f64, glfw::WindowEvent)>
 }
 
-impl Game {
+pub struct Game {
+    window : Window,
+    glfw : Glfw
+}
 
-    pub fn new() -> Game {
+impl Window {
+    pub fn new(glfw : &glfw::Glfw) -> Window {
+        let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
+            .expect("Failed to create GLFW window.");
         Self {
-            game: Logic::new()
+            win : window,
+            events
         }
     }
 
-    pub fn init_window(
-        name : &str,
-        width : u32,
-        height : u32,
-        event_loop: &EventLoop<()>) -> winit::window::Window {
-        winit::window::WindowBuilder::new()
-            .with_title(name)
-            .with_inner_size(winit::dpi::LogicalSize::new(width, height))
-            .build(&event_loop)
-            .expect("Failed to create window")
+    pub fn should_close(&self) -> bool {
+        self.win.should_close()
     }
-    
+
+
+}
+
+impl Game {
+    pub fn new() -> Game {
+        let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        Self {
+            window : Window::new(&glfw),
+            glfw
+        }
+    }
+
+    pub fn game_loop(&mut self) {
+        while !self.window.should_close() {
+            self.glfw.poll_events();
+
+        }
+    }
 }

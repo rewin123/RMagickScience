@@ -8,4 +8,6 @@ edition = "2018"
 [dependencies]
 encore = {path = "encore"}
 enrender = {path = "enrender"}
-winit = "0.25.0"
+
+[dependencies.glfw]
+git = "https://github.com/bjz/glfw-rs.git"
