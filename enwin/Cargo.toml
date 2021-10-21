@@ -8,6 +8,8 @@ edition = "2018"
 [dependencies]
 encore = {path = "encore"}
 enrender = {path = "enrender"}
+ash = "0.33.3+1.2.191"
 
 [dependencies.glfw]
 git = "https://github.com/bjz/glfw-rs.git"
+features = ["vulkan"]

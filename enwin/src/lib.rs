@@ -3,6 +3,12 @@ use std::sync::mpsc::Receiver;
 use encore::*;
 
 use glfw::{Action, Context, Glfw, Key};
+use ash;
+
+struct VulkanApp {
+    instance : ash::Instance,
+    entry : ash::Entry
+}
 
 pub struct Window {
     win : glfw::Window,
@@ -15,9 +21,12 @@ pub struct Game {
 }
 
 impl Window {
-    pub fn new(glfw : &glfw::Glfw) -> Window {
+    pub fn new(glfw : &mut glfw::Glfw) -> Window {
         let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
             .expect("Failed to create GLFW window.");
+        window.make_current();
+        let required_extensions = glfw.get_required_instance_extensions().unwrap_or(vec![]);
+        println!("Vulkan required extensions: {:?}", required_extensions);
         Self {
             win : window,
             events
@@ -33,9 +42,9 @@ impl Window {
 
 impl Game {
     pub fn new() -> Game {
-        let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         Self {
-            window : Window::new(&glfw),
+            window : Window::new(&mut glfw),
             glfw
         }
     }
