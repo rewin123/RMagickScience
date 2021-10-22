@@ -7,7 +7,6 @@ edition = "2018"
 
 [dependencies]
 enwin = {path = "enwin"}
-winit = "0.25.0"
 
 
 [workspace]
