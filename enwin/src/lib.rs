@@ -2,7 +2,6 @@ extern crate glfw;
 use std::sync::mpsc::Receiver;
 use encore::*;
 
-use ash::vk_make_version;
 use ash::vk;
 use std::ffi::CString;
 use std::ptr;
@@ -36,11 +35,13 @@ pub struct Game {
 
 impl VulkanApp {
     pub fn new(glfw : &mut glfw::Glfw) -> VulkanApp {
-        let entry = ash::Entry::new().unwrap();
-        let instance = VulkanApp::create_instance(&entry, &mut glfw);
-        Self {
-            entry,
-            instance
+        unsafe {
+            let entry = ash::Entry::new().unwrap();
+            let instance = VulkanApp::create_instance(&entry, glfw);
+            Self {
+                entry,
+                instance
+            }
         }
     }
 
@@ -55,9 +56,9 @@ impl VulkanApp {
             p_next : ptr::null(),
             p_application_name : app_name.as_ptr(),
             p_engine_name : engine_name.as_ptr(),
-            application_version : vk_make_version!(1, 0, 0),
-            engine_version : vk_make_version!(1, 0, 0),
-            api_version : vk_make_version!(1, 0, 92)
+            application_version : vk::make_api_version(1, 0, 0, 0),
+            engine_version : vk::make_api_version(1, 0, 0, 0),
+            api_version : vk::make_api_version(1, 0, 92, 0)
         };
 
         let extension_names = required_extension_names();
@@ -65,7 +66,7 @@ impl VulkanApp {
         let create_info = vk::InstanceCreateInfo {
             s_type: vk::StructureType::INSTANCE_CREATE_INFO,
             p_next: ptr::null(),
-            flags: vk::InstaceCreateFlags().empty(),
+            flags: vk::InstanceCreateFlags::empty(),
             p_application_info: &app_info,
             pp_enabled_layer_names: ptr::null(),
             enabled_layer_count: 0,
@@ -80,6 +81,14 @@ impl VulkanApp {
         };
 
         instance
+    }
+}
+
+impl Drop for VulkanApp {
+    fn drop(&mut self) {
+        unsafe {
+            self.instance.destroy_instance(None);
+        }
     }
 }
 
