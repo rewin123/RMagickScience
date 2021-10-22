@@ -20,6 +20,11 @@ pub struct Game {
     glfw : Glfw
 }
 
+
+impl VulkanApp {
+    pub fn new()
+}
+
 impl Window {
     pub fn new(glfw : &mut glfw::Glfw) -> Window {
         let (mut window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::WindowMode::Windowed)
