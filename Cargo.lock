@@ -132,7 +132,9 @@ dependencies = [
 name = "enrender"
 version = "0.1.0"
 dependencies = [
+ "ash",
  "encore",
+ "glfw",
 ]
 
 [[package]]
