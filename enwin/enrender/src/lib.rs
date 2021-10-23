@@ -173,6 +173,10 @@ impl VulkanApp {
 impl Drop for VulkanApp {
     fn drop(&mut self) {
         unsafe {
+            if VALIDATION_ENABLE {
+                self.debug_utils_loader
+                    .destroy_debug_utils_messenger(self.debug_merssager, None);
+            }
             self.instance.destroy_instance(None);
         }
     }
