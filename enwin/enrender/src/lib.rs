@@ -35,6 +35,8 @@ pub struct VulkanApp {
     debug_utils_loader: ash::extensions::ext::DebugUtils,
     debug_merssager: vk::DebugUtilsMessengerEXT,
     _physical_device: vk::PhysicalDevice,
+    device: ash::Device,
+    _graphics_queue: vk::Queue
 }
 
 impl VulkanApp {
@@ -45,14 +47,80 @@ impl VulkanApp {
             let (debug_utils_loader, debug_merssager) = VulkanApp::setup_debug_utils(&entry, &instance);
 
             let physical_device = VulkanApp::pick_physical_device(&instance);
+            let (logical_device, graphics_queue) =
+                VulkanApp::create_logical_device(&instance, physical_device);
+
             Self {
                 entry,
                 instance,
                 debug_utils_loader,
                 debug_merssager,
-                _physical_device: physical_device
+                _physical_device: physical_device,
+                device: logical_device,
+                _graphics_queue: graphics_queue,
             }
         }
+    }
+
+    fn create_logical_device(
+        instance: &ash::Instance,
+        physical_device: vk::PhysicalDevice,
+    ) -> (ash::Device, vk::Queue) {
+        let indices = VulkanApp::find_queue_family(instance, physical_device);
+
+        let queue_priorities = [1.0_f32];
+        let queue_create_info = vk::DeviceQueueCreateInfo {
+            s_type: vk::StructureType::DEVICE_QUEUE_CREATE_INFO,
+            p_next: ptr::null(),
+            flags: vk::DeviceQueueCreateFlags::empty(),
+            queue_family_index: indices.graphics_family.unwrap(),
+            p_queue_priorities: queue_priorities.as_ptr(),
+            queue_count: queue_priorities.len() as u32,
+        };
+
+        let physical_device_features = vk::PhysicalDeviceFeatures {
+            ..Default::default() // default just enable no feature.
+        };
+
+        let requred_validation_layer_raw_names: Vec<CString> = VALIDATION_LAYERS
+            .iter()
+            .map(|layer_name| CString::new(*layer_name).unwrap())
+            .collect();
+        let enable_layer_names: Vec<*const c_char> = requred_validation_layer_raw_names
+            .iter()
+            .map(|layer_name| layer_name.as_ptr())
+            .collect();
+
+        let device_create_info = vk::DeviceCreateInfo {
+            s_type: vk::StructureType::DEVICE_CREATE_INFO,
+            p_next: ptr::null(),
+            flags: vk::DeviceCreateFlags::empty(),
+            queue_create_info_count: 1,
+            p_queue_create_infos: &queue_create_info,
+            enabled_layer_count: if VALIDATION_ENABLE {
+                enable_layer_names.len()
+            } else {
+                0
+            } as u32,
+            pp_enabled_layer_names: if VALIDATION_ENABLE {
+                enable_layer_names.as_ptr()
+            } else {
+                ptr::null()
+            },
+            enabled_extension_count: 0,
+            pp_enabled_extension_names: ptr::null(),
+            p_enabled_features: &physical_device_features,
+        };
+
+        let device: ash::Device = unsafe {
+            instance
+                .create_device(physical_device, &device_create_info, None)
+                .expect("Failed to create logical Device!")
+        };
+
+        let graphics_queue = unsafe { device.get_device_queue(indices.graphics_family.unwrap(), 0) };
+
+        (device, graphics_queue)
     }
 
     fn pick_physical_device(instance: &ash::Instance) -> vk::PhysicalDevice {
@@ -330,6 +398,7 @@ impl VulkanApp {
 impl Drop for VulkanApp {
     fn drop(&mut self) {
         unsafe {
+            self.device.destroy_device(None);
             if VALIDATION_ENABLE {
                 self.debug_utils_loader
                     .destroy_debug_utils_messenger(self.debug_merssager, None);
