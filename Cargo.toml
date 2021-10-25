@@ -7,9 +7,13 @@ edition = "2018"
 
 [dependencies]
 enwin = {path = "enwin"}
+encore = {path = "enwin/encore"}
+async-std = "1.10.0"
 
 
 [workspace]
 members = [
     "enwin"
 ]
+
+#texture-synthesis - very good texture generating. Need to learn
