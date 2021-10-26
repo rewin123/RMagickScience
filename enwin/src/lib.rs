@@ -1,10 +1,11 @@
+
+use std::sync::mpsc::Receiver;
 use encore::*;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowId},
 };
-
 
 pub struct Game {
     logick : Logic,
@@ -51,5 +52,6 @@ impl Game {
                 _ => {}
             }
         });
+
     }
 }
