@@ -13,6 +13,7 @@ pub enum ResState {
 pub trait Resource<T> {
     fn GetState(&self) -> ResState;
     fn new(path : String) -> Arc<Resource<T>> where Self: Sized;
+
 }
 
 pub struct StringResource {
