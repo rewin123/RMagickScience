@@ -8,6 +8,7 @@ resolver = "2"
 
 [dependencies]
 enwin = {path = "enwin"}
+encore = {path = "enwin/encore"}
 futures = "0.3.17"
 
 [workspace]

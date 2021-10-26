@@ -1,7 +1,7 @@
 use legion::*;
-use async_std::sync::Arc;
 use std::collections::HashMap;
 use crate::ResState::InMemory;
+use std::sync::Arc;
 
 pub enum ResState {
     Undefined,

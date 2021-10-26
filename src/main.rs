@@ -1,5 +1,4 @@
 use enwin::*;
-use async_std::sync::Arc;
 
 fn main() {
     let mut game = Game::new();
