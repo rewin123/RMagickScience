@@ -10,33 +10,68 @@ pub enum ResState {
     InGPUMemory
 }
 
-pub trait Resource<T> {
+pub trait Resource {
     fn GetState(&self) -> ResState;
-    fn new(path : &String) -> Arc<Resource<T>> where Self: Sized;
+    fn new_arc(path : &String) -> Arc<Self> where Self: Sized;
+}
+
+pub struct ResMesh {
 
 }
 
-pub struct StringResource {
-    path : String,
-    state : ResState
+pub struct ResTexture {
+
 }
 
-impl Resource<StringResource> for StringResource {
+pub struct ResPBRCluster {
+
+}
+
+pub struct ResPipeline {
+
+}
+
+impl ResMesh {
+    pub fn new(str : &String) -> ResMesh {
+        Self {
+
+        }
+    }
+}
+
+impl Resource for ResMesh {
     fn GetState(&self) -> ResState {
         todo!()
     }
 
-    fn new(path: &String) -> Arc<Resource<StringResource>> where Self: Sized {
-        Arc::new(
-            Self {
-                path : String::clone(path),
-                state : InMemory
-            })
+    fn new_arc(path: &String) -> Arc<ResMesh> {
+        Arc::new(ResMesh::new(path))
+    }
+}
+
+impl ResTexture {
+    pub fn new(str : &String) -> Self {
+        Self {
+
+        }
+    }
+}
+
+impl Resource for ResTexture {
+    fn GetState(&self) -> ResState {
+        todo!()
+    }
+
+    fn new_arc(path: &String) -> Arc<Self> where Self: Sized {
+        Arc::new(ResTexture::new(path))
     }
 }
 
 pub struct ResourceManager {
-    resource_table : HashMap<String, Arc<dyn Resource<()>>>
+    mesh_map : HashMap<String, Arc<ResMesh>>,
+    texture_map : HashMap<String, Arc<ResTexture>>,
+    pbr_cluster_map : HashMap<String, Arc<ResPBRCluster>>,
+    pipeline_map : HashMap<String, Arc<ResPipeline>>,
 }
 
 pub struct Logic {
@@ -58,19 +93,31 @@ impl Logic {
 impl ResourceManager {
     pub fn new() -> ResourceManager {
         Self {
-            resource_table : HashMap::new()
+            mesh_map : HashMap::new(),
+            texture_map : HashMap::new(),
+            pbr_cluster_map : HashMap::new(),
+            pipeline_map : HashMap::new(),
         }
     }
 
-    // pub fn get<T>(self, path : &String) -> Arc<dyn Resource<T>> where T : Sized {
-    //     // let res = self.resource_table.get(path);
-    //     // match res {
-    //     //     Some(val) => Arc::clone(val) as Arc<dyn Resource<T>>,
-    //     //     None => {
-    //     //         let arc = Resource::<T>::new(path);
-    //     //         self.resource_table.insert(path, arc);
-    //     //         Arc::clone(&arc)
-    //     //     }
-    //     // }
-    // }
+    fn get_mesh(&mut self, uri : &String) -> Arc<ResMesh> {
+        ResourceManager::get::<ResMesh>(&mut self.mesh_map, uri)
+    }
+
+    fn get_texture(&mut self, uri : &String) -> Arc<ResTexture> {
+        ResourceManager::get::<ResTexture>(&mut self.texture_map, uri)
+    }
+
+    fn get<T>(map : &mut HashMap<String, Arc<T>>, str : &String) -> Arc<T> where T: Resource {
+        let res = map.get(str);
+        match res {
+             Some(val) => Arc::clone(val),
+            None => {
+                let rs = T::new_arc(str);
+                let cl = Arc::clone(&rs);
+                map.insert(str.to_string(), rs);
+                cl
+            }
+        }
+    }
 }
