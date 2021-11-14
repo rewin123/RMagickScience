@@ -1,6 +1,8 @@
-use enwin::*;
+use bevy::prelude::*;
 
 fn main() {
-    let mut game = Game::new();
-    game.game_loop();
+   App::build()
+        .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.9)))
+        .add_plugins(DefaultPlugins)
+        .run();
 }
